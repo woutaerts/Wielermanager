@@ -149,8 +149,16 @@ function calcRacePoints(raceId) {
 
     const map = {};
     for (const riderId of starters) {
-        let pts = 0;
         const rawPlace = results[riderId] || '';
+        const valUpper = String(rawPlace).trim().toUpperCase();
+
+        // Als de renner een DNS heeft, of het veld is volledig leeg: 0 punten.
+        if (valUpper === 'DNS' || valUpper === '') {
+            map[riderId] = 0;
+            continue;
+        }
+
+        let pts = 0;
         const place = parseInt(rawPlace);
 
         // Basis punten
@@ -163,7 +171,8 @@ function calcRacePoints(raceId) {
             pts += KOPMAN_BONUS[place] ?? 0;
         }
 
-        // Ploegmaat winnaar bonus (wordt ALTIJD berekend, ongeacht finish)
+        // Ploegmaat winnaar bonus
+        // We weten dat de renner is gestart (want de check op DNS/leeg is al gepasseerd)
         if (winnerTeam && winnerId && riderId !== winnerId) {
             const riderTeam = getRider(riderId)?.team ?? null;
             if (riderTeam && riderTeam === winnerTeam) {
@@ -194,6 +203,11 @@ function pointsBreakdown(raceId, riderId) {
     const results  = rs.results  || {};
 
     const rawPlace = results[riderId] || '';
+    const valUpper = String(rawPlace).trim().toUpperCase();
+
+    // Bij DNS of leeg veld tonen we sowieso geen breakdown
+    if (valUpper === 'DNS' || valUpper === '') return null;
+
     const place = parseInt(rawPlace);
 
     let base = 0;
@@ -207,7 +221,6 @@ function pointsBreakdown(raceId, riderId) {
     const winnerTeam = winnerId ? getRider(winnerId)?.team ?? null : null;
     const tw         = (winnerTeam && winnerId && riderId !== winnerId && (getRider(riderId)?.team ?? '') === winnerTeam) ? 10 : 0;
 
-    // Als er helemaal geen punten zijn, toon geen breakdown
     if (base === 0 && km === 0 && tw === 0) return null;
 
     const parts = [];
@@ -215,7 +228,6 @@ function pointsBreakdown(raceId, riderId) {
     if (km > 0)  parts.push(`+${km} kopman`);
     if (tw > 0)  parts.push(`+${tw} ploegmaat`);
 
-    // Als de enige bonus "ploegmaat" is, haal dan de "+" weg voor een mooiere weergave
     if (parts.length === 1 && parts[0].startsWith('+')) {
         parts[0] = parts[0].substring(1);
     }
@@ -573,7 +585,6 @@ function renderResultaten() {
             const bd    = pts > 0 ? pointsBreakdown(raceId, id) : null;
             const deletedTag = rider.deleted ? '<span style="font-size:10px; color:var(--text-faint); margin-left:5px;">(Transf)</span>' : '';
 
-            // verander type="number" in type="text"
             return `
         <tr>
           <td>
@@ -617,7 +628,7 @@ function renderResultaten() {
           <thead>
             <tr>
               <th>Renner</th>
-              <th>Positie (1–30, DNF, etc.)</th>
+              <th>Positie (1–30, DNF, DNS...)</th>
               <th>Punten</th>
             </tr>
           </thead>
@@ -663,7 +674,7 @@ function renderResultaten() {
     el.querySelectorAll('.place-input').forEach(input => {
         input.addEventListener('input', () => {
             const id  = input.dataset.riderId;
-            const val = input.value.trim().toUpperCase(); // Bewaar DNF, OTL of nummers netjes uppercase
+            const val = input.value.trim().toUpperCase();
             if (val !== '') {
                 rs.results[id] = val;
             } else {
