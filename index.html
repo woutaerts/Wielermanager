@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wout van Aerts – Wielermanager 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="app">
+
+    <header class="header">
+        <div class="header-brand">
+            <div class="brand-icon">⚡</div>
+            <div class="brand-text">
+                <h1 class="brand-name">WOUT VAN AERTS</h1>
+                <p class="brand-sub">Sporza Wielermanager 2025</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="pts-badge">
+                <span class="pts-label">TOTAAL</span>
+                <span class="pts-num" id="total-points">0</span>
+                <span class="pts-unit">pt</span>
+            </div>
+            <button class="theme-btn" id="theme-toggle" aria-label="Thema wisselen" title="Thema wisselen">
+                <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                    <circle cx="12" cy="12" r="5"/>
+                    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+                <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <nav class="tab-nav" role="tablist" aria-label="Navigatie">
+        <button class="tab-btn active" data-tab="dashboard" role="tab" aria-selected="true">
+            <span class="t-icon">🏆</span>
+            <span class="t-label">Dashboard</span>
+        </button>
+        <button class="tab-btn" data-tab="ploeg" role="tab" aria-selected="false">
+            <span class="t-icon">👥</span>
+            <span class="t-label">Mijn Ploeg</span>
+        </button>
+        <button class="tab-btn" data-tab="resultaten" role="tab" aria-selected="false">
+            <span class="t-icon">🏁</span>
+            <span class="t-label">Resultaten</span>
+        </button>
+        <button class="tab-btn" data-tab="transfers" role="tab" aria-selected="false">
+            <span class="t-icon">🔄</span>
+            <span class="t-label">Transfers</span>
+        </button>
+    </nav>
+
+    <main class="app-main">
+        <div id="tab-dashboard" class="tab-panel active" role="tabpanel"></div>
+        <div id="tab-ploeg"      class="tab-panel"        role="tabpanel"></div>
+        <div id="tab-resultaten" class="tab-panel"        role="tabpanel"></div>
+        <div id="tab-transfers"  class="tab-panel"        role="tabpanel"></div>
+    </main>
+
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
