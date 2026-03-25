@@ -61,8 +61,8 @@ const KOPMAN_BONUS = { 1: 30, 2: 25, 3: 20, 4: 15, 5: 10, 6: 5 };
 ══════════════════════════════════════════════ */
 
 let state = {
-    team: [],     // [{id, name, team, deleted}]
-    races: {},    // {raceId: {starters:[...], kopman:id|null, results:{riderId:place}}}
+    team: [],
+    races: {},
     theme: 'dark',
     activeTab: 'dashboard',
     ploegRaceId: RACES[0].id,
@@ -117,7 +117,6 @@ function getRaceState(raceId) {
 
 function getRider(id) { return state.team.find(r => r.id === id); }
 
-// Haalt enkel de renners op die momenteel actief zijn (niet weggetransfereerd)
 function getActiveTeam() { return state.team.filter(r => !r.deleted); }
 
 function escHtml(s) {
@@ -150,21 +149,26 @@ function calcRacePoints(raceId) {
 
     const map = {};
     for (const riderId of starters) {
-        const place = parseInt(results[riderId]);
-        if (!Number.isInteger(place) || place < 1 || place > 30) {
-            map[riderId] = 0;
-            continue;
+        let pts = 0;
+        const rawPlace = results[riderId] || '';
+        const place = parseInt(rawPlace);
+
+        // Basis punten
+        if (Number.isInteger(place) && place >= 1 && place <= 30) {
+            pts += POINTS_TABLE[race.type][place - 1] ?? 0;
         }
 
-        let pts = POINTS_TABLE[race.type][place - 1] ?? 0;
-
-        if (riderId === kopman && place <= 6) {
+        // Kopman bonus (alleen top 6)
+        if (riderId === kopman && Number.isInteger(place) && place >= 1 && place <= 6) {
             pts += KOPMAN_BONUS[place] ?? 0;
         }
 
+        // Ploegmaat winnaar bonus (wordt ALTIJD berekend, ongeacht finish)
         if (winnerTeam && winnerId && riderId !== winnerId) {
             const riderTeam = getRider(riderId)?.team ?? null;
-            if (riderTeam && riderTeam === winnerTeam) pts += 10;
+            if (riderTeam && riderTeam === winnerTeam) {
+                pts += 10;
+            }
         }
 
         map[riderId] = pts;
@@ -185,23 +189,36 @@ function pointsBreakdown(raceId, riderId) {
     const rs      = state.races[raceId];
     if (!race || !rs) return null;
 
-    const place   = parseInt(rs.results?.[riderId]);
-    if (!Number.isInteger(place) || place < 1 || place > 30) return null;
-
     const kopman   = rs.kopman;
     const starters = rs.starters || [];
     const results  = rs.results  || {};
 
-    const base     = POINTS_TABLE[race.type][place - 1] ?? 0;
-    const km       = (riderId === kopman && place <= 6) ? (KOPMAN_BONUS[place] ?? 0) : 0;
+    const rawPlace = results[riderId] || '';
+    const place = parseInt(rawPlace);
+
+    let base = 0;
+    if (Number.isInteger(place) && place >= 1 && place <= 30) {
+        base = POINTS_TABLE[race.type][place - 1] ?? 0;
+    }
+
+    const km = (riderId === kopman && Number.isInteger(place) && place >= 1 && place <= 6) ? (KOPMAN_BONUS[place] ?? 0) : 0;
 
     const winnerId   = starters.find(id => parseInt(results[id]) === 1);
     const winnerTeam = winnerId ? getRider(winnerId)?.team ?? null : null;
     const tw         = (winnerTeam && winnerId && riderId !== winnerId && (getRider(riderId)?.team ?? '') === winnerTeam) ? 10 : 0;
 
-    const parts = [`${base} basis`];
+    // Als er helemaal geen punten zijn, toon geen breakdown
+    if (base === 0 && km === 0 && tw === 0) return null;
+
+    const parts = [];
+    if (base > 0) parts.push(`${base} basis`);
     if (km > 0)  parts.push(`+${km} kopman`);
     if (tw > 0)  parts.push(`+${tw} ploegmaat`);
+
+    // Als de enige bonus "ploegmaat" is, haal dan de "+" weg voor een mooiere weergave
+    if (parts.length === 1 && parts[0].startsWith('+')) {
+        parts[0] = parts[0].substring(1);
+    }
 
     return { total: base + km + tw, label: parts.join(' · ') };
 }
@@ -364,8 +381,6 @@ function renderPloeg() {
     const starters = rs.starters || [];
     const kopman   = rs.kopman;
 
-    // De bus bevat alle ACTIEVE renners die niet geselecteerd zijn als starter.
-    // Verwijderde renners mogen enkel verschijnen als ze vroeger al geselecteerd stonden als starter voor deze koers.
     const eligibleRiders = state.team.filter(r => !r.deleted || starters.includes(r.id));
     const bus            = eligibleRiders.filter(r => !starters.includes(r.id));
     const startersData   = starters.map(id => getRider(id)).filter(Boolean);
@@ -462,7 +477,6 @@ function renderPloeg() {
         renderApp();
     });
 
-    // Nieuwe functionaliteit: Kopieer vorige opstelling
     el.querySelector('#copy-lineup').addEventListener('click', () => {
         const currentIndex = RACES.findIndex(r => r.id === raceId);
         if (currentIndex > 0) {
@@ -470,7 +484,6 @@ function renderPloeg() {
             const prevRs = getRaceState(prevRaceId);
             const currentRs = getRaceState(raceId);
 
-            // Haal de starters van de vorige race, maar negeer de renners die inmiddels verwijderd/getransfereerd zijn
             const activePrevStarters = (prevRs.starters || []).filter(id => {
                 const r = getRider(id);
                 return r && !r.deleted;
@@ -554,12 +567,13 @@ function renderResultaten() {
         return starters.map(id => {
             const rider = getRider(id);
             if (!rider) return '';
-            const place = results[id] ? parseInt(results[id]) : '';
+            const place = results[id] || '';
             const pts   = pointsMap[id] ?? 0;
             const isKm  = id === kopman;
-            const bd    = (place && place >= 1 && place <= 30) ? pointsBreakdown(raceId, id) : null;
+            const bd    = pts > 0 ? pointsBreakdown(raceId, id) : null;
             const deletedTag = rider.deleted ? '<span style="font-size:10px; color:var(--text-faint); margin-left:5px;">(Transf)</span>' : '';
 
+            // verander type="number" in type="text"
             return `
         <tr>
           <td>
@@ -572,8 +586,8 @@ function renderResultaten() {
             </div>
           </td>
           <td>
-            <input type="number" class="place-input" min="1" max="30"
-              value="${place}" placeholder="–"
+            <input type="text" class="place-input"
+              value="${escHtml(place)}" placeholder="–"
               data-rider-id="${id}">
           </td>
           <td class="points-cell" data-pts-cell="${id}">
@@ -603,7 +617,7 @@ function renderResultaten() {
           <thead>
             <tr>
               <th>Renner</th>
-              <th>Positie (1–30)</th>
+              <th>Positie (1–30, DNF, etc.)</th>
               <th>Punten</th>
             </tr>
           </thead>
@@ -649,8 +663,8 @@ function renderResultaten() {
     el.querySelectorAll('.place-input').forEach(input => {
         input.addEventListener('input', () => {
             const id  = input.dataset.riderId;
-            const val = parseInt(input.value);
-            if (Number.isInteger(val) && val >= 1 && val <= 30) {
+            const val = input.value.trim().toUpperCase(); // Bewaar DNF, OTL of nummers netjes uppercase
+            if (val !== '') {
                 rs.results[id] = val;
             } else {
                 delete rs.results[id];
@@ -662,8 +676,8 @@ function renderResultaten() {
     el.querySelector('#save-results').addEventListener('click', () => {
         el.querySelectorAll('.place-input').forEach(input => {
             const id  = input.dataset.riderId;
-            const val = parseInt(input.value);
-            if (Number.isInteger(val) && val >= 1 && val <= 30) {
+            const val = input.value.trim().toUpperCase();
+            if (val !== '') {
                 rs.results[id] = val;
             } else {
                 delete rs.results[id];
@@ -691,7 +705,6 @@ function renderResultaten() {
 function renderTransfers() {
     const el = document.getElementById('tab-transfers');
 
-    // Filter uiteraard enkel de ACTIEVE renners voor dit overzicht
     const activeTeam = getActiveTeam();
 
     const teamCounts = {};
@@ -771,10 +784,8 @@ function renderTransfers() {
             if (!rider) return;
             if (!confirm(`${rider.name} verwijderen (transfereren)?\n\nHij blijft bewaard in de koersen waar je al resultaten hebt ingevoerd, maar verdwijnt uit je team voor alle toekomstige wedstrijden.`)) return;
 
-            // Soft-delete de renner in plaats van hem uit de array te filteren
             rider.deleted = true;
 
-            // Verwijder hem enkel als starter uit koersen die nog GÉÉN resultaten hebben ingevuld gekregen
             for (const [rId, rs] of Object.entries(state.races)) {
                 const hasResults = rs.results && Object.keys(rs.results).length > 0;
                 if (!hasResults) {
@@ -803,7 +814,6 @@ function renderTransfers() {
         }
         errorDiv.classList.add('hidden');
 
-        // Voeg de renner toe. Default state deleted: false is niet expliciet nodig want we checken op truthy
         state.team.push({ id: generateId(), name, team });
         saveState();
         renderTransfers();
