@@ -263,6 +263,7 @@ body {
     margin-bottom: 16px;
     display: flex;
     align-items: center;
+    justify-content: center; /* Gecentreerd */
     gap: 10px;
 }
 
@@ -284,7 +285,7 @@ body {
     color: var(--text-muted);
     padding: 8px 12px;
     border-bottom: 1px solid var(--border);
-    text-align: left;
+    text-align: center; /* Kolomkoppen gecentreerd */
     white-space: nowrap;
 }
 
@@ -292,6 +293,7 @@ body {
     padding: 9px 12px;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
+    text-align: center; /* Tabel inhoud gecentreerd */
 }
 
 .data-table tbody tr:last-child td { border-bottom: none; }
@@ -308,6 +310,7 @@ body {
     font-size: 15px;
     font-weight: 800;
     letter-spacing: .04em;
+    text-align: center; /* Totaal gecentreerd */
 }
 
 .race-date {
@@ -326,13 +329,14 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    margin: 0 auto; /* Gecentreerd */
 }
 
 .points-cell {
     font-family: var(--font-mono);
     font-weight: 600;
     color: var(--accent);
-    text-align: right;
+    text-align: center; /* Punten gecentreerd */
     white-space: nowrap;
 }
 
@@ -482,6 +486,7 @@ body {
     padding: 8px 12px;
     transition: border-color var(--transition), box-shadow var(--transition);
     outline: none;
+    text-align: center; /* Tekst in invulvelden gecentreerd */
 }
 .text-input:focus, .select-input:focus, .select-race:focus, .place-input:focus {
     border-color: var(--accent);
@@ -489,15 +494,14 @@ body {
 }
 .text-input::placeholder { color: var(--text-faint); }
 
-.select-input option, .select-race option { background: var(--surface); color: var(--text); }
-.select-input optgroup { color: var(--text-muted); font-style: normal; font-weight: 700; }
+.select-input option, .select-race option { background: var(--surface); color: var(--text); text-align: center; }
+.select-input optgroup { color: var(--text-muted); font-style: normal; font-weight: 700; text-align: center; }
 
 .select-race {
     font-family: var(--font-display);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    padding-right: 28px;
 }
 
 .place-input {
@@ -507,6 +511,7 @@ body {
     font-weight: 600;
     text-align: center;
     padding: 6px 8px;
+    margin: 0 auto;
 }
 .place-input::-webkit-inner-spin-button,
 .place-input::-webkit-outer-spin-button { opacity: .4; }
@@ -520,6 +525,7 @@ body {
     padding: 8px 14px;
     font-size: 13px;
     margin-bottom: 12px;
+    text-align: center;
 }
 .error-msg.hidden { display: none; }
 
@@ -528,6 +534,7 @@ body {
     font-size: 13px;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 5px;
 }
 
@@ -536,6 +543,7 @@ body {
     font-size: 13px;
     font-style: italic;
     padding: 12px 4px;
+    text-align: center;
 }
 
 .empty-state {
@@ -559,6 +567,7 @@ body {
     margin-bottom: 16px;
     position: relative;
     overflow: hidden;
+    text-align: center; /* Tekst hero gecentreerd */
 }
 .dashboard-hero::before {
     content: '';
@@ -571,6 +580,7 @@ body {
 .total-display {
     display: flex;
     align-items: baseline;
+    justify-content: center; /* Gecentreerd */
     gap: 10px;
     margin-bottom: 20px;
 }
@@ -605,12 +615,13 @@ body {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
+    justify-content: center; /* Blokjes gecentreerd */
 }
 
 .stat-card {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center; /* Inhoud blokjes gecentreerd */
     gap: 2px;
     background: var(--surface-3);
     border: 1px solid var(--border);
@@ -638,10 +649,11 @@ body {
 .section-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
+    justify-content: center; /* Gecentreerd */
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+    text-align: center;
 }
 .section-header h2 {
     font-family: var(--font-display);
@@ -655,6 +667,7 @@ body {
 .race-info-bar {
     display: flex;
     align-items: center;
+    justify-content: center; /* Gecentreerd */
     gap: 12px;
     background: var(--surface);
     border: 1px solid var(--border);
@@ -662,12 +675,13 @@ body {
     padding: 10px 16px;
     margin-bottom: 16px;
     flex-wrap: wrap;
+    text-align: center;
 }
 .race-full-name {
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 700;
-    flex: 1;
+    flex: none; /* Aanpassing voor perfecte centrering */
 }
 .kopman-info {
     font-size: 13px;
@@ -679,6 +693,7 @@ body {
 .save-row {
     display: flex;
     align-items: center;
+    justify-content: center; /* Knoppen gecentreerd */
     gap: 12px;
     padding: 16px 0 4px;
     flex-wrap: wrap;
@@ -706,13 +721,13 @@ body {
 .col-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    justify-content: center; /* Gecentreerd */
+    flex-direction: column; /* Onder elkaar gecentreerd */
+    gap: 6px;
     padding: 14px 16px;
     background: var(--surface-2);
     border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
-    gap: 6px;
+    text-align: center;
 }
 
 .col-header h3 {
@@ -753,14 +768,33 @@ body {
 .rider-card.is-kopman { border-color: rgba(255,204,85,.25); background: rgba(255,204,85,.05); }
 .rider-card.is-kopman:hover { background: rgba(255,204,85,.08); }
 
-.rider-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+.rider-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Tekst in lineup card gecentreerd */
+    text-align: center;
+    gap: 1px;
+    min-width: 0;
+    flex: 1;
+}
 .rider-name { font-weight: 600; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rider-team { font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rider-actions { display: flex; gap: 4px; flex-shrink: 0; }
 
 /* rider cell in results table */
-.rider-cell { display: flex; flex-direction: column; gap: 2px; }
-.rider-name-row { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.rider-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Gecentreerd in tabellen */
+    gap: 2px;
+}
+.rider-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Gecentreerd */
+    gap: 6px;
+    font-weight: 600;
+}
 .kopman-tag { font-size: 13px; }
 .rider-team-small { font-size: 11px; color: var(--text-muted); }
 
@@ -780,6 +814,7 @@ body {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    justify-content: center; /* Inputs en knop gecentreerd */
 }
 .form-row .text-input  { flex: 1 1 180px; }
 .form-row .select-input { flex: 2 1 220px; }
@@ -802,6 +837,7 @@ body {
     font-size: 12px;
     font-weight: 500;
     overflow: hidden;
+    text-align: center; /* Gecentreerd */
 }
 .team-count-item span:first-child {
     overflow: hidden;
@@ -844,6 +880,7 @@ body {
     pointer-events: none;
     white-space: nowrap;
     z-index: 9999;
+    text-align: center;
 }
 .toast.show {
     opacity: 1;
@@ -866,9 +903,9 @@ body {
 @media (max-width: 600px) {
     .form-row { flex-direction: column; }
     .form-row .text-input, .form-row .select-input { width: 100%; }
-    .section-header { flex-direction: column; align-items: flex-start; }
+    .section-header { flex-direction: column; align-items: center; } /* Blijft netjes gecentreerd op mobiel */
     .select-race { width: 100%; }
-    .race-info-bar { flex-direction: column; align-items: flex-start; }
+    .race-info-bar { flex-direction: column; align-items: center; }
 }
 
 /* ── Scrollbar ── */
